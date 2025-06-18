@@ -53,6 +53,7 @@ function getFeedback(guess, answer) {
 const MAX_ATTEMPTS = 6;
 
 const QueryForm = () => {
+  const categoryList = Object.keys(WORD_CATEGORIES);
   const [category, setCategory] = useState("Fruits");
   const [answer, setAnswer] = useState(() => {
     const words = WORD_CATEGORIES["Fruits"];
@@ -62,8 +63,12 @@ const QueryForm = () => {
   const [feedback, setFeedback] = useState([]);
   const [attempts, setAttempts] = useState([]);
   const [message, setMessage] = useState("");
-  const [points, setPoints] = useState(0);
-  const [round, setRound] = useState(1);
+  const [points, setPoints] = useState({ Fruits: 0 });
+  const [round, setRound] = useState({ Fruits: 1 });
+
+  // Helper to get current category's points/round
+  const getPoints = () => points[category] || 0;
+  const getRound = () => round[category] || 1;
 
   const nextWord = () => {
     const words = WORD_CATEGORIES[category];
@@ -72,7 +77,7 @@ const QueryForm = () => {
     setFeedback([]);
     setAttempts([]);
     setMessage("");
-    setRound(r => r + 1);
+    setRound(r => ({ ...r, [category]: getRound() + 1 }));
   };
 
   const handleCategoryChange = (e) => {
@@ -84,8 +89,9 @@ const QueryForm = () => {
     setFeedback([]);
     setAttempts([]);
     setMessage("");
-    setRound(1);
-    setPoints(0);
+    // If switching to a new category, initialize its points/round if not present
+    setPoints(p => ({ ...p, [newCategory]: p[newCategory] || 0 }));
+    setRound(r => ({ ...r, [newCategory]: r[newCategory] || 1 }));
   };
 
   const handleSubmit = (e) => {
@@ -101,7 +107,7 @@ const QueryForm = () => {
     setMessage("");
     if (guess.toLowerCase() === answer) {
       const earned = MAX_ATTEMPTS - newAttempts.length + 1;
-      setPoints(points + earned);
+      setPoints(p => ({ ...p, [category]: getPoints() + earned }));
       setMessage(`Congratulations! You guessed the word '${answer}' in ${newAttempts.length} attempts. (+${earned} points)`);
     } else if (newAttempts.length === MAX_ATTEMPTS) {
       setMessage(`Sorry, the word was '${answer}'. No points this round.`);
@@ -114,11 +120,11 @@ const QueryForm = () => {
   return (
     <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
       <h2>Wordle (React Version)</h2>
-      <div style={{ marginBottom: 10 }}>Round: {round} | Points: {points}</div>
+      <div style={{ marginBottom: 10 }}>Round: {getRound()} | Points: {getPoints()}</div>
       <div style={{ marginBottom: 10 }}>
         <label>Category: </label>
-        <select value={category} onChange={handleCategoryChange} disabled={attempts.length > 0 && !isRoundOver}>
-          {Object.keys(WORD_CATEGORIES).map(cat => (
+        <select value={category} onChange={handleCategoryChange}>
+          {categoryList.map(cat => (
             <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
