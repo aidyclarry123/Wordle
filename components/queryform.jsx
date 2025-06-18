@@ -2,28 +2,28 @@ import React, { useState } from "react";
 
 const WORD_CATEGORIES = {
   Fruits: [
-    "apple", "grape", "peach", "mango", "berry", "lemon", "melon", "plums", "guava", "olive", "dates", "figs", "lychee", "papaw", "apric"
+    "apple", "grape", "peach", "mango", "berry", "lemon", "melon", "plums", "guava", "olive", "dates", "figs", "papaw"
   ],
   Vegetables: [
-    "onion", "carrot", "radish", "chard", "leeks", "beans", "kalei", "turni", "beets", "celery", "okrae", "squash", "tomat", "garli", "chive"
-  ],
+    "onion", "chard", "leeks", "beans", "beets", "carrot", "radish", "turnip", "celery", "tomat", "chive"
+  ].filter(word => word.length === 5),
   Animals: [
     "tiger", "zebra", "horse", "sheep", "eagle", "shark", "whale", "panda", "koala", "otter", "lemur", "bison", "camel", "gecko", "finch"
   ],
   Countries: [
-    "spain", "india", "china", "egypt", "ghana", "japan", "kenya", "nepal", "qatar", "sudan", "yemen", "italy", "brazil", "chile", "franc"
+    "spain", "india", "china", "egypt", "ghana", "japan", "kenya", "nepal", "qatar", "sudan", "yemen", "chile"
   ],
   Colors: [
-    "white", "black", "green", "brown", "peach", "olive", "navy", "coral", "amber", "ivory", "khaki", "lilac", "plumb", "teal", "apric"
+    "white", "black", "green", "brown", "peach", "olive", "navy", "coral", "amber", "ivory"
   ],
   Sports: [
-    "tenni", "rugby", "hocky", "boxin", "judoa", "golfi", "poloa", "crick", "squas", "fence", "rowin", "skate", "swing", "vault", "relay"
-  ],
+    "tennis", "rugby", "hockey", "fence", "skate", "vault", "relay"
+  ].filter(word => word.length === 5),
   Cities: [
-    "paris", "tokyo", "delhi", "miami", "sydney", "milan", "leeds", "osaka", "sofia", "perth", "quito", "punei", "lille", "porto", "dakar"
+    "paris", "tokyo", "delhi", "miami", "milan", "leeds", "osaka", "sofia", "perth", "quito", "lille", "porto", "dakar"
   ],
   Flowers: [
-    "lilac", "tulip", "daisy", "poppy", "lotus", "aster", "lilya", "roses", "viole", "petal", "zinnia", "azale", "canna", "dahli", "pansy"
+    "lilac", "tulip", "daisy", "poppy", "lotus", "aster", "roses", "petal", "canna", "pansy"
   ],
   Tech: [
     "mouse", "cable", "modem", "drive", "pixel", "laser", "chips", "bytes", "cloud", "array", "input", "logic", "token", "stack", "patch"
