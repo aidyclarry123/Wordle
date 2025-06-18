@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const WORDS = [
-  "apple", "grape", "peach", "mango", "berry", "lemon", "melon", "cherry", "plums", "guava"
+  "apple", "grape", "peach", "mango", "berry", "lemon", "melon", "plums", "guava"
 ];
 
 function getFeedback(guess, answer) {
@@ -24,12 +24,25 @@ function getFeedback(guess, answer) {
   return feedback.join(" ");
 }
 
+const MAX_ATTEMPTS = 6;
+
 const QueryForm = () => {
-  const [answer] = useState(WORDS[Math.floor(Math.random() * WORDS.length)]);
+  const [answer, setAnswer] = useState(WORDS[Math.floor(Math.random() * WORDS.length)]);
   const [guess, setGuess] = useState("");
   const [feedback, setFeedback] = useState([]);
   const [attempts, setAttempts] = useState([]);
   const [message, setMessage] = useState("");
+  const [points, setPoints] = useState(0);
+  const [round, setRound] = useState(1);
+
+  const nextWord = () => {
+    setAnswer(WORDS[Math.floor(Math.random() * WORDS.length)]);
+    setGuess("");
+    setFeedback([]);
+    setAttempts([]);
+    setMessage("");
+    setRound(r => r + 1);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -38,30 +51,36 @@ const QueryForm = () => {
       return;
     }
     const fb = getFeedback(guess.toLowerCase(), answer);
-    setAttempts([...attempts, guess]);
+    const newAttempts = [...attempts, guess];
+    setAttempts(newAttempts);
     setFeedback([...feedback, fb]);
     setMessage("");
     if (guess.toLowerCase() === answer) {
-      setMessage(`Congratulations! You guessed the word '${answer}'.`);
-    } else if (attempts.length + 1 === 6) {
-      setMessage(`Sorry, the word was '${answer}'.`);
+      const earned = MAX_ATTEMPTS - newAttempts.length + 1;
+      setPoints(points + earned);
+      setMessage(`Congratulations! You guessed the word '${answer}' in ${newAttempts.length} attempts. (+${earned} points)`);
+    } else if (newAttempts.length === MAX_ATTEMPTS) {
+      setMessage(`Sorry, the word was '${answer}'. No points this round.`);
     }
     setGuess("");
   };
 
+  const isRoundOver = message.includes("Congratulations") || message.includes("Sorry");
+
   return (
     <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
       <h2>Wordle (React Version)</h2>
+      <div style={{ marginBottom: 10 }}>Round: {round} | Points: {points}</div>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           value={guess}
           maxLength={5}
           onChange={e => setGuess(e.target.value)}
-          disabled={message.includes("Congratulations") || message.includes("Sorry")}
+          disabled={isRoundOver}
           style={{ textTransform: "lowercase", fontSize: 20, letterSpacing: 5 }}
         />
-        <button type="submit" disabled={message.includes("Congratulations") || message.includes("Sorry")}>Guess</button>
+        <button type="submit" disabled={isRoundOver}>Guess</button>
       </form>
       <div style={{ marginTop: 20 }}>
         {feedback.map((fb, idx) => (
@@ -69,6 +88,9 @@ const QueryForm = () => {
         ))}
       </div>
       {message && <div style={{ marginTop: 20, fontWeight: "bold" }}>{message}</div>}
+      {isRoundOver && (
+        <button style={{ marginTop: 20 }} onClick={nextWord}>Next Word</button>
+      )}
     </div>
   );
 };

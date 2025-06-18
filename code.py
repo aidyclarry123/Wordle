@@ -2,7 +2,7 @@ import random
 
 # List of possible 5-letter words (for demo purposes, a small sample)
 WORDS = [
-    "apple", "grape", "peach", "mango", "berry", "lemon", "melon", "cherry", "plums", "guava"
+    "apple", "grape", "peach", "mango", "berry", "lemon", "melon", "plums", "guava"
 ]
 
 
