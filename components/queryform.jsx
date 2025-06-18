@@ -1,8 +1,34 @@
 import React, { useState } from "react";
 
-const WORDS = [
-  "apple", "grape", "peach", "mango", "berry", "lemon", "melon", "plums", "guava"
-];
+const WORD_CATEGORIES = {
+  Fruits: [
+    "apple", "grape", "peach", "mango", "berry", "lemon", "melon", "plums", "guava", "olive", "dates", "figs", "lychee", "papaw", "apric"
+  ],
+  Vegetables: [
+    "onion", "carrot", "radish", "chard", "leeks", "beans", "kalei", "turni", "beets", "celery", "okrae", "squash", "tomat", "garli", "chive"
+  ],
+  Animals: [
+    "tiger", "zebra", "horse", "sheep", "eagle", "shark", "whale", "panda", "koala", "otter", "lemur", "bison", "camel", "gecko", "finch"
+  ],
+  Countries: [
+    "spain", "india", "china", "egypt", "ghana", "japan", "kenya", "nepal", "qatar", "sudan", "yemen", "italy", "brazil", "chile", "franc"
+  ],
+  Colors: [
+    "white", "black", "green", "brown", "peach", "olive", "navy", "coral", "amber", "ivory", "khaki", "lilac", "plumb", "teal", "apric"
+  ],
+  Sports: [
+    "tenni", "rugby", "hocky", "boxin", "judoa", "golfi", "poloa", "crick", "squas", "fence", "rowin", "skate", "swing", "vault", "relay"
+  ],
+  Cities: [
+    "paris", "tokyo", "delhi", "miami", "sydney", "milan", "leeds", "osaka", "sofia", "perth", "quito", "punei", "lille", "porto", "dakar"
+  ],
+  Flowers: [
+    "lilac", "tulip", "daisy", "poppy", "lotus", "aster", "lilya", "roses", "viole", "petal", "zinnia", "azale", "canna", "dahli", "pansy"
+  ],
+  Tech: [
+    "mouse", "cable", "modem", "drive", "pixel", "laser", "chips", "bytes", "cloud", "array", "input", "logic", "token", "stack", "patch"
+  ]
+};
 
 function getFeedback(guess, answer) {
   let feedback = Array(5).fill("_");
@@ -27,7 +53,11 @@ function getFeedback(guess, answer) {
 const MAX_ATTEMPTS = 6;
 
 const QueryForm = () => {
-  const [answer, setAnswer] = useState(WORDS[Math.floor(Math.random() * WORDS.length)]);
+  const [category, setCategory] = useState("Fruits");
+  const [answer, setAnswer] = useState(() => {
+    const words = WORD_CATEGORIES["Fruits"];
+    return words[Math.floor(Math.random() * words.length)];
+  });
   const [guess, setGuess] = useState("");
   const [feedback, setFeedback] = useState([]);
   const [attempts, setAttempts] = useState([]);
@@ -36,12 +66,26 @@ const QueryForm = () => {
   const [round, setRound] = useState(1);
 
   const nextWord = () => {
-    setAnswer(WORDS[Math.floor(Math.random() * WORDS.length)]);
+    const words = WORD_CATEGORIES[category];
+    setAnswer(words[Math.floor(Math.random() * words.length)]);
     setGuess("");
     setFeedback([]);
     setAttempts([]);
     setMessage("");
     setRound(r => r + 1);
+  };
+
+  const handleCategoryChange = (e) => {
+    const newCategory = e.target.value;
+    setCategory(newCategory);
+    const words = WORD_CATEGORIES[newCategory];
+    setAnswer(words[Math.floor(Math.random() * words.length)]);
+    setGuess("");
+    setFeedback([]);
+    setAttempts([]);
+    setMessage("");
+    setRound(1);
+    setPoints(0);
   };
 
   const handleSubmit = (e) => {
@@ -71,6 +115,14 @@ const QueryForm = () => {
     <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
       <h2>Wordle (React Version)</h2>
       <div style={{ marginBottom: 10 }}>Round: {round} | Points: {points}</div>
+      <div style={{ marginBottom: 10 }}>
+        <label>Category: </label>
+        <select value={category} onChange={handleCategoryChange} disabled={attempts.length > 0 && !isRoundOver}>
+          {Object.keys(WORD_CATEGORIES).map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
