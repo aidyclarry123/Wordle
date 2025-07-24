@@ -66,6 +66,7 @@ const QueryForm = () => {
   const [points, setPoints] = useState({ Fruits: 0 });
   const [round, setRound] = useState({ Fruits: 1 });
   const [guessedLetters, setGuessedLetters] = useState([]);
+  const [guessedLetterCounts, setGuessedLetterCounts] = useState({});
 
   // Helper to get current category's points/round
   const getPoints = () => points[category] || 0;
@@ -80,6 +81,7 @@ const QueryForm = () => {
     setMessage("");
     setRound(r => ({ ...r, [category]: getRound() + 1 }));
     setGuessedLetters([]);
+    setGuessedLetterCounts({});
   };
 
   const handleCategoryChange = (e) => {
@@ -95,6 +97,7 @@ const QueryForm = () => {
     setPoints(p => ({ ...p, [newCategory]: p[newCategory] || 0 }));
     setRound(r => ({ ...r, [newCategory]: r[newCategory] || 1 }));
     setGuessedLetters([]);
+    setGuessedLetterCounts({});
   };
 
   const handleSubmit = (e) => {
@@ -108,10 +111,17 @@ const QueryForm = () => {
     setAttempts(newAttempts);
     setFeedback([...feedback, fb]);
     setMessage("");
-    // Track guessed letters
+    // Track guessed letters and their counts
     setGuessedLetters(prev => {
       const newLetters = guess.toLowerCase().split("");
       return Array.from(new Set([...prev, ...newLetters]));
+    });
+    setGuessedLetterCounts(prev => {
+      const newCounts = { ...prev };
+      guess.toLowerCase().split("").forEach(l => {
+        newCounts[l] = (newCounts[l] || 0) + 1;
+      });
+      return newCounts;
     });
     if (guess.toLowerCase() === answer) {
       const earned = MAX_ATTEMPTS - newAttempts.length + 1;
@@ -126,17 +136,31 @@ const QueryForm = () => {
   const isRoundOver = message.includes("Congratulations") || message.includes("Sorry");
 
   // Letters guessed, with strikethrough for those not in answer
-  const answerLetters = new Set(answer.split(""));
+  // and color if more instances are needed
+  const answerLettersArr = answer.split("");
+  const answerLetterCounts = answerLettersArr.reduce((acc, l) => {
+    acc[l] = (acc[l] || 0) + 1;
+    return acc;
+  }, {});
   const guessedDisplay = guessedLetters.length > 0 && (
     <div style={{ marginTop: 10 }}>
       <strong>Guessed Letters: </strong>
-      {guessedLetters.map((letter, idx) =>
-        answerLetters.has(letter) ? (
-          <span key={idx} style={{ fontSize: 20, marginRight: 4 }}>{letter}</span>
-        ) : (
-          <span key={idx} style={{ textDecoration: "line-through", color: "#888", fontSize: 20, marginRight: 4 }}>{letter}</span>
-        )
-      )}
+      {guessedLetters.map((letter, idx) => {
+        const inAnswer = answerLetterCounts[letter];
+        const guessedCount = guessedLetterCounts[letter] || 0;
+        if (!inAnswer) {
+          return (
+            <span key={idx} style={{ textDecoration: "line-through", color: "#888", fontSize: 20, marginRight: 4 }}>{letter}</span>
+          );
+        }
+        // Highlight if not enough guessed
+        const highlight = guessedCount < inAnswer;
+        return (
+          <span key={idx} style={{ fontSize: 20, marginRight: 8, color: highlight ? "#d4a100" : "#222", fontWeight: highlight ? "bold" : "normal", borderBottom: highlight ? "2px solid #d4a100" : "none" }}>
+            {letter} <span style={{ fontSize: 14, color: "#888" }}>({guessedCount}/{inAnswer})</span>
+          </span>
+        );
+      })}
     </div>
   );
 
