@@ -65,6 +65,7 @@ const QueryForm = () => {
   const [message, setMessage] = useState("");
   const [points, setPoints] = useState({ Fruits: 0 });
   const [round, setRound] = useState({ Fruits: 1 });
+  const [guessedLetters, setGuessedLetters] = useState([]);
 
   // Helper to get current category's points/round
   const getPoints = () => points[category] || 0;
@@ -78,6 +79,7 @@ const QueryForm = () => {
     setAttempts([]);
     setMessage("");
     setRound(r => ({ ...r, [category]: getRound() + 1 }));
+    setGuessedLetters([]);
   };
 
   const handleCategoryChange = (e) => {
@@ -92,6 +94,7 @@ const QueryForm = () => {
     // If switching to a new category, initialize its points/round if not present
     setPoints(p => ({ ...p, [newCategory]: p[newCategory] || 0 }));
     setRound(r => ({ ...r, [newCategory]: r[newCategory] || 1 }));
+    setGuessedLetters([]);
   };
 
   const handleSubmit = (e) => {
@@ -105,6 +108,11 @@ const QueryForm = () => {
     setAttempts(newAttempts);
     setFeedback([...feedback, fb]);
     setMessage("");
+    // Track guessed letters
+    setGuessedLetters(prev => {
+      const newLetters = guess.toLowerCase().split("");
+      return Array.from(new Set([...prev, ...newLetters]));
+    });
     if (guess.toLowerCase() === answer) {
       const earned = MAX_ATTEMPTS - newAttempts.length + 1;
       setPoints(p => ({ ...p, [category]: getPoints() + earned }));
@@ -116,6 +124,21 @@ const QueryForm = () => {
   };
 
   const isRoundOver = message.includes("Congratulations") || message.includes("Sorry");
+
+  // Letters guessed, with strikethrough for those not in answer
+  const answerLetters = new Set(answer.split(""));
+  const guessedDisplay = guessedLetters.length > 0 && (
+    <div style={{ marginTop: 10 }}>
+      <strong>Guessed Letters: </strong>
+      {guessedLetters.map((letter, idx) =>
+        answerLetters.has(letter) ? (
+          <span key={idx} style={{ fontSize: 20, marginRight: 4 }}>{letter}</span>
+        ) : (
+          <span key={idx} style={{ textDecoration: "line-through", color: "#888", fontSize: 20, marginRight: 4 }}>{letter}</span>
+        )
+      )}
+    </div>
+  );
 
   return (
     <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
@@ -140,6 +163,7 @@ const QueryForm = () => {
         />
         <button type="submit" disabled={isRoundOver}>Guess</button>
       </form>
+      {guessedDisplay}
       <div style={{ marginTop: 20 }}>
         {feedback.map((fb, idx) => (
           <div key={idx} style={{ fontFamily: "monospace", fontSize: 22 }}>{fb}</div>
